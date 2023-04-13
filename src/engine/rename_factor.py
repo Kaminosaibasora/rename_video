@@ -2,6 +2,7 @@ import os
 import re
 import shutil
 import random
+import scenedetect as sd
 
 def list_video(path = "./../ex", types_accepted = ["mp4"]):
     files = os.listdir(path)
@@ -40,6 +41,38 @@ def copy_file_out(file,  newname, path = "./../ex"):
 
 def del_file(file, path = "./../ex"):
     os.remove(path + '/' + file)
+
+def separation_file_folder(filepath):
+    for i in range(len(filepath)-1, 0, -1):
+        if filepath[i] == '/':
+            return (filepath[i+1:], filepath[0:i])
+
+
+def detect_cut_file(file, path = "./../ex"):
+    try :
+        print(path + '/' + file)
+        cap = sd.open_video(path + '/' + file)
+
+        scene_manager = sd.SceneManager()
+        scene_manager.add_detector(
+            sd.ContentDetector(threshold=27.0)
+        )
+        scene_manager.detect_scenes(cap)
+        # print(scene_manager.get_scene_list())
+
+        sd.video_splitter.split_video_ffmpeg(
+            path + '/' + file, 
+            scene_manager.get_scene_list(), 
+            output_file_template= path + '/$VIDEO_NAME-Scene-$SCENE_NUMBER.mp4', 
+            video_name=None, 
+            arg_override='-map 0 -c:v libx264 -preset veryfast -crf 22 -c:a aac', 
+            show_progress=True, 
+            show_output=False, 
+            suppress_output=None, 
+            hide_progress=None
+        )
+    except Exception as e :
+        print("error split video :", e)
 
 if __name__ == '__main__' : 
     create_folder_out()

@@ -43,10 +43,7 @@ class List_file_widget(QWidget):
                 except Exception as e :
                     print(e)
             self.rengine.list_video_folder(self.folderpath)
-            for f in self.rengine.listpath :
-                self.listwidget.addItem(
-                    QListWidgetItem(f)
-                )
+            self.maj_list_files()
         except Exception as e :
             print(e)
             error = QMessageBox()
@@ -54,6 +51,12 @@ class List_file_widget(QWidget):
             error.setText("Error :"+e)
             error.setWindowTitle("Erreur de validation")
     
+    def maj_list_files(self):
+        for f in self.rengine.listpath :
+            self.listwidget.addItem(
+                QListWidgetItem(f)
+            )
+
     def clicklist(self, test):
         print(test.data())
         self.filechoose = test.data()

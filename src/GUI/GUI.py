@@ -1,5 +1,11 @@
+import sys
 
-from PyQt5.QtWidgets import QMainWindow, QWidget, QGridLayout, QMessageBox
+sys.path.append('./engine')
+from renamegine import Renamegine
+
+from PyQt5.QtWidgets import QMainWindow, QWidget, QGridLayout, QMessageBox, QAction, QFileDialog
+from PyQt5.QtCore import QDir, Qt, QUrl
+from PyQt5.QtGui import QIcon
 
 from video_player_widget import Video_player_widget
 from list_file_widget import List_file_widget
@@ -21,6 +27,20 @@ class GUI(QMainWindow):
         # TAG CREATOR
         self.tag_creat = Tag_creator(self.rengine)
         self.tag_creat.saveButton.clicked.connect(self.validation_name)
+        self.tag_creat.saveButton.setShortcut('Return')
+
+        # MENU
+
+        # Create new action
+        openAction = QAction(QIcon('open.png'), '&Open and Cut video', self)        
+        openAction.setShortcut('Ctrl+O')
+        openAction.setStatusTip('Open movie')
+        openAction.triggered.connect(self.open_detect_cut)
+
+        # Create menu bar and add action
+        menuBar = self.menuBar()
+        fileMenu = menuBar.addMenu('&Fonction')
+        fileMenu.addAction(openAction)
 
         # LAYOUT
         layout = QGridLayout()
@@ -64,5 +84,25 @@ class GUI(QMainWindow):
         self.video.loadMedia(self.rengine.get_current_path())
         self.video.play()
         self.listwidget.linecurrent = line
+    
+    def open_detect_cut(self):
+        try :
+            fileName, _ = QFileDialog.getOpenFileName(self, "Open Movie",
+                QDir.homePath())
+            # print(fileName)
+            self.rengine.cutdetect(fileName)
+            self.listwidget.maj_list_files()
+            valid = QMessageBox()
+            valid.setIcon(QMessageBox.Information)
+            valid.setText("cut réalisé avec succès !")
+            valid.setWindowTitle("Success")
+            valid.exec()
+        except Exception as e :
+            print(e)
+            error = QMessageBox()
+            error.setIcon(QMessageBox.Warning)
+            error.setText("Error :"+e)
+            error.setWindowTitle("Erreur")
+            error.exec()
 
 

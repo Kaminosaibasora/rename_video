@@ -27,12 +27,26 @@ class Renamegine :
             self.currentpath = ""
         except Exception as e :
             print("ERROR rename current file : ", e)
+            raise ValueError('ERROR rename current file :' + e)
     
     def choose_current_file(self, file):
         if file in self.listpath :
             self.currentpath = file
         else :
             raise ValueError("Ce path n'existe pas !")
+    
+    def cutdetect(self, file):
+        try :
+            fileinfo = rf.separation_file_folder(file)
+            # print("fileinfo[0]" + fileinfo[0])
+            # print("fileinfo[1]" + fileinfo[1])
+            rf.detect_cut_file(fileinfo[0], fileinfo[1])
+            rf.del_file(fileinfo[0], fileinfo[1])
+            self.list_video_folder(fileinfo[1])
+        except Exception as e :
+            print(e)
+            raise SystemError('ERROR rename current file :' + e)
+
     
     def get_current_path(self):
         return self.folderpath + '/' + self.currentpath
